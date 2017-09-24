@@ -15,11 +15,11 @@ type Name = String
 data Named a = Named Name a
   deriving(Eq, Show)
 
-data Program t where
-  Program :: [Named (Expr t)] -> Expr t -> Program t
+data Ast t where
+  Ast :: [Named (Expr t)] -> Expr t -> Ast t
 
-deriving instance Eq(Program t)
-deriving instance Show(Program t)
+deriving instance Eq(Ast t)
+deriving instance Show(Ast t)
 
 
 type ExprU = Expr 'U
