@@ -27,6 +27,12 @@ initialState = ConstrainState [] $ TypeVar 0
 
 type ConstrainM a = RWS AstT [Constraint] ConstrainState a
 
+pushLocal :: Named Type -> ConstrainM ()
+pushLocal nt = modify $ \s -> s{localBindings = nt : localBindings s}
+
+popLocal :: ConstrainM ()
+popLocal = modify $ \s -> s{localBindings = tail $ localBindings s}
+
 getNextTypeVar :: ConstrainM TypeVar
 getNextTypeVar = do
   var@(TypeVar val) <- (gets nextTypeVar)
