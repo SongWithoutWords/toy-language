@@ -76,11 +76,15 @@ checkExpr (ExprU expression) = case expression of
     -- param'@(Named tParam _) <- checkParam param
     tParam <- nextType
 
+    let param = Named name tParam
+
+    pushLocal param
     expr'@(ExprT tExpr _) <- checkExpr expr
+    popLocal
 
     constrain tLam $ TLam tParam tExpr
 
-    pure $ ExprT tLam $ ELamT (Named name tParam) expr'
+    pure $ ExprT tLam $ ELamT param expr'
 
 
   EApp e1 e2 -> do
