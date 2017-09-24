@@ -4,19 +4,16 @@
 
 module Ast
   ( module Ast
+  , module Name
   , module Type
   ) where
 
+import Name
 import Type
 
 data Typing
   = U -- untyped
   | T -- typed
-
-type Name = String
-
-data Named a = Named Name a
-  deriving(Eq, Show)
 
 type AstU = Ast 'U
 type AstT = Ast 'T
