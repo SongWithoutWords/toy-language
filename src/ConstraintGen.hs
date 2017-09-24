@@ -8,24 +8,33 @@ import Control.Monad.RWS
 
 import Ast
 import Constraint
+import Util
 
 constrainAst :: AstU -> (AstT, [Constraint])
 constrainAst ast =
 
   -- tie the knot, in order to refer to typevars further ahead in the input
-  let (ast', _, constraints) = runRWS (checkAst ast) ast' (TypeVar 0)
+  let (ast', _, constraints) = runRWS (checkAst ast) ast' initialState
   in (ast', constraints)
 
-type ConstrainM a = RWS AstT [Constraint] TypeVar a
+data ConstrainState = ConstrainState
+  { localBindings :: [Named Type]
+  , nextTypeVar :: TypeVar
+  }
 
-nextTypeVar :: ConstrainM TypeVar
-nextTypeVar = do
-  var@(TypeVar val) <- get
-  put $ TypeVar (val + 1)
+initialState :: ConstrainState
+initialState = ConstrainState [] $ TypeVar 0
+
+type ConstrainM a = RWS AstT [Constraint] ConstrainState a
+
+getNextTypeVar :: ConstrainM TypeVar
+getNextTypeVar = do
+  var@(TypeVar val) <- (gets nextTypeVar)
+  modify $ \s -> s{nextTypeVar = TypeVar (val + 1)}
   pure var
 
 nextType :: ConstrainM Type
-nextType = nextTypeVar >>= pure . TVar
+nextType = getNextTypeVar >>= pure . TVar
 
 constrain :: Type -> Type -> ConstrainM ()
 constrain t1 t2 = tell [Constraint t1 t2]
@@ -41,6 +50,19 @@ checkNamedExpr = traverse checkExpr
 
 checkExpr :: ExprU -> ConstrainM ExprT
 checkExpr (ExprU expression) = case expression of
+
+  EVar name -> do
+    locals <- gets localBindings
+    (Ast globals _) <- ask
+
+    let local = findMaybe
+          (\(Named n t) -> if n == name then Just t else Nothing) locals
+
+    let global = findMaybe
+          (\(Named n (ExprT t _)) -> if n == name then Just t else Nothing) globals
+
+    pure $ ExprT (local <?> global ?? TError) $ EVar name
+
 
   ELam param expr -> do
     tLam <- nextType
