@@ -19,6 +19,7 @@ library
   other-modules:       Ast
                      , Type
   build-depends:       base >= 4.7 && < 5
+                     , constainers
                      , mtl
   default-language:    Haskell2010
 
