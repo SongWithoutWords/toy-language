@@ -40,7 +40,7 @@ data Expr' t where
   EVar :: Name -> Expr' t
 
   -- Add multiple parameters later, as needed
-  ELam :: Name -> Expr t -> Expr' t
+  ELam :: Param t -> Expr t -> Expr' t
   EApp :: Expr t -> Expr t -> Expr' t
 
   EIf :: Expr t -> Expr t -> Expr t -> Expr' t
