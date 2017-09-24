@@ -4,6 +4,8 @@
 
 module Ast where
 
+import Type
+
 data Typing
   = U -- untyped
   | T -- typed
@@ -59,11 +61,5 @@ data Op
 data Val
   = VBln Bool
   | VInt Int
-  deriving(Eq, Show)
-
-data Type
-  = TLam Type Type
-  | TBln
-  | TInt
   deriving(Eq, Show)
 
