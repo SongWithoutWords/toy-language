@@ -15,6 +15,8 @@ type Name = String
 data Named a = Named Name a
   deriving(Eq, Show)
 
+type AstU = Ast 'U
+type AstT = Ast 'T
 data Ast t where
   Ast :: [Named (Expr t)] -> Expr t -> Ast t
 
