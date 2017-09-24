@@ -66,6 +66,8 @@ data Op
   | Sub
   | Mul
   | Div
+  | LessThan
+  | GreaterThan
   | And
   | Or
   deriving(Eq, Show)
