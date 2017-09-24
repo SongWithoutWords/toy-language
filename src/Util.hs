@@ -6,3 +6,13 @@ findMaybe f (x:xs) = case f x of
   Just y -> Just y
   Nothing -> findMaybe f xs
 
+(<?>) :: Maybe a -> Maybe a -> Maybe a
+Just x <?> _ = Just x
+_ <?> Just y = Just y
+_ <?> _ = Nothing
+
+infixr 0 ??
+(??) :: Maybe a -> a -> a
+Just x ?? _ = x
+Nothing ?? y = y
+
