@@ -2,7 +2,10 @@
 {-# language GADTs #-}
 {-# language StandaloneDeriving #-}
 
-module Ast where
+module Ast
+  ( module Ast
+  , module Type
+  ) where
 
 import Type
 
