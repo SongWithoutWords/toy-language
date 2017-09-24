@@ -51,6 +51,16 @@ deriving instance Eq(Expr' t)
 deriving instance Show(Expr' t)
 
 
+type ParamU = Param 'U
+type ParamT = Param 'T
+data Param t where
+  ParamU :: Name -> ParamU
+  ParamT :: Type -> Name -> ParamT
+
+deriving instance Eq(Param t)
+deriving instance Show(Param t)
+
+
 data Op
   = Add
   | Sub
