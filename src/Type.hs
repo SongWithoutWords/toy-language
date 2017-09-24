@@ -5,6 +5,7 @@ data Type
   | TBln
   | TInt
   | TVar TypeVar
+  | TError
   deriving(Eq, Show)
 
 newtype TypeVar = TypeVar Word
