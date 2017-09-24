@@ -11,7 +11,7 @@ Just x <?> _ = Just x
 _ <?> Just y = Just y
 _ <?> _ = Nothing
 
-infixr 0 ??
+infixr 1 ??
 (??) :: Maybe a -> a -> a
 Just x ?? _ = x
 Nothing ?? y = y
