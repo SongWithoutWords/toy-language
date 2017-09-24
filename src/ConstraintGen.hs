@@ -64,15 +64,17 @@ checkExpr (ExprU expression) = case expression of
     pure $ ExprT (local <?> global ?? TError) $ EVar name
 
 
-  ELam param expr -> do
+  ELamU name expr -> do
     tLam <- nextType
 
-    param'@(ParamT tParam _) <- checkParam param
+    -- param'@(Named tParam _) <- checkParam param
+    tParam <- nextType
+
     expr'@(ExprT tExpr _) <- checkExpr expr
 
     constrain tLam $ TLam tParam tExpr
 
-    pure $ ExprT tLam $ ELam param' expr'
+    pure $ ExprT tLam $ ELamT (Named name tParam) expr'
 
 
   EApp e1 e2 -> do
@@ -116,9 +118,4 @@ checkExpr (ExprU expression) = case expression of
   EVal v -> case v of
     b@VBln{} -> pure $ ExprT TBln $ EVal b
     i@VInt{} -> pure $ ExprT TInt $ EVal i
-
-checkParam :: ParamU -> ConstrainM ParamT
-checkParam (ParamU name) = do
-  paramType <- nextType
-  pure $ ParamT paramType name
 
