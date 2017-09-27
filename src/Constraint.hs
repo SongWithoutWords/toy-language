@@ -4,3 +4,4 @@ import Type
 
 data Constraint
   = Constraint Type Type
+  deriving(Eq, Show)
