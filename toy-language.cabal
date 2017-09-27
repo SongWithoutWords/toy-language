@@ -15,9 +15,13 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     
-  other-modules:       Ast
+  exposed-modules:     Ast 
+                     , AstBuilderU
+                     , ConstraintGen
+  other-modules:       Constraint
+                     , Name 
                      , Type
+                     , Util
   build-depends:       base >= 4.7 && < 5
                      , containers
                      , mtl
