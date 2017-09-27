@@ -2,6 +2,7 @@
 
 module ConstraintGen
   ( constrainAst
+  , module Constraint
   ) where
 
 import Control.Monad.RWS
