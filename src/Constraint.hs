@@ -1,4 +1,7 @@
-module Constraint where
+module Constraint
+  ( module Constraint
+  , module Type
+  ) where
 
 import Type
 
