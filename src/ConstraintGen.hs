@@ -97,18 +97,18 @@ checkExpr (ExprU expression) = case expression of
 
     pure $ ExprT tApp $ EApp e1' e2'
 
-  EIf e1 cn e2 -> do
+  EIf (Pred e1) e2 e3 -> do
     tIf <- nextType
 
     e1'@(ExprT t1 _) <- checkExpr e1
-    cn'@(ExprT tc _) <- checkExpr cn
     e2'@(ExprT t2 _) <- checkExpr e2
+    e3'@(ExprT t3 _) <- checkExpr e3
 
-    constrain t1 tIf
-    constrain tc TBln
+    constrain t1 TBln
     constrain t2 tIf
+    constrain t3 tIf
 
-    pure $ ExprT tIf $ EIf e1' cn' e2'
+    pure $ ExprT tIf $ EIf (Pred e1') e2' e3'
 
   EBinOp op e1 e2 -> let
 

@@ -45,12 +45,19 @@ data Expr' t where
 
   EApp :: Expr t -> Expr t -> Expr' t
 
-  EIf :: Expr t -> Expr t -> Expr t -> Expr' t
+  EIf :: Pred t -> Expr t -> Expr t -> Expr' t
   EBinOp :: Op -> Expr t -> Expr t -> Expr' t
   EVal :: Val -> Expr' t
 
 deriving instance Eq(Expr' t)
 deriving instance Show(Expr' t)
+
+type PredU = Pred 'U
+type PredT = Pred 'T
+newtype Pred t = Pred (Expr t)
+
+deriving instance Eq(Pred t)
+deriving instance Show(Pred t)
 
 
 data Op
