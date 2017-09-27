@@ -105,9 +105,9 @@ checkExpr (ExprU expression) = case expression of
     e2'@(ExprT t2 _) <- checkExpr e2
     e3'@(ExprT t3 _) <- checkExpr e3
 
-    constrain t1 TBln
-    constrain t2 tIf
-    constrain t3 tIf
+    constrain TBln t1
+    constrain tIf t2
+    constrain tIf t3
 
     pure $ ExprT tIf $ EIf (Pred e1') e2' e3'
 
@@ -115,7 +115,34 @@ checkExpr (ExprU expression) = case expression of
 
     checkBinOp :: Op -> Type -> Type -> Type -> ConstrainM ()
 
-    checkBinOp = undefined
+    -- Int -> Int -> Int
+    checkBinOp Add a b r = do
+      mapM_ (constrain TInt) [a, b, r]
+
+    checkBinOp Sub a b r = do
+      mapM_ (constrain TInt) [a, b, r]
+
+    checkBinOp Mul a b r = do
+      mapM_ (constrain TInt) [a, b, r]
+
+    checkBinOp Div a b r = do
+      mapM_ (constrain TInt) [a, b, r]
+
+    -- Int -> Int -> Bln
+    checkBinOp LessThan a b r = do
+      mapM_ (constrain TInt) [a, b]
+      constrain TBln r
+
+    checkBinOp GreaterThan a b r = do
+      mapM_ (constrain TInt) [a, b]
+      constrain TBln r
+
+    -- Bln -> Bln -> Bln
+    checkBinOp And a b r = do
+      mapM_ (constrain TBln) [a, b, r]
+
+    checkBinOp Or a b r = do
+      mapM_ (constrain TBln) [a, b, r]
 
     in do
       e1'@(ExprT t1 _) <- checkExpr e1
