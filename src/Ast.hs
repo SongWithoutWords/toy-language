@@ -40,8 +40,8 @@ data Expr' t where
   EVar :: Name -> Expr' t
 
   -- Add multiple parameters later, as needed
-  ELamU :: Name -> Expr t -> Expr' t
-  ELamT :: Named Type -> Expr t -> Expr' t
+  ELamU :: Name -> ExprU -> ExprU'
+  ELamT :: Named Type -> ExprT -> ExprT'
 
   EApp :: Expr t -> Expr t -> Expr' t
 
