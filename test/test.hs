@@ -10,12 +10,60 @@ main = defaultMain tests
 
 tests :: TestTree
 tests = testGroup "Tests"
-  [ testCase "type-check fact"
-    $ typeCheckAst factorialImplicit @?= factorialExplicit
+  [ testCase "var"
+    $ typeCheckAst varImp @?= varExp
+
+  , testCase "ordered sum"
+    $ typeCheckAst sumOrderedImp @?= sumOrderedExp
+
+  , testCase "unordered sum"
+    $ typeCheckAst sumUnorderedImp @?= sumUnorderedExp
+
+  , testCase "type-check fact"
+    $ typeCheckAst factImp @?= facExp
+
   ]
 
-factorialImplicit :: AstU
-factorialImplicit = Ast
+varImp :: AstU
+varImp = Ast [ Named "a" $ eIntU 5 ] $ eVarU "a"
+
+varExp :: AstT
+varExp = Ast [ Named "a" $ eIntT 5] $ eVarT TInt "a"
+
+sumOrderedImp :: AstU
+sumOrderedImp = Ast
+  [ Named "a" $ eIntU 5
+  , Named "b" $ eIntU 3
+  , Named "c" $ eBinOpU Add (eVarU "a") (eVarU "b")
+  ]
+  $ eVarU "c"
+
+sumOrderedExp :: AstT
+sumOrderedExp = Ast
+  [ Named "a" $ eIntT 5
+  , Named "b" $ eIntT 3
+  , Named "c" $ eBinOpT TInt Add (eVarT TInt "a") (eVarT TInt "b")
+  ]
+  $ eVarT TInt "c"
+
+sumUnorderedImp :: AstU
+sumUnorderedImp = Ast
+  [ Named "a" $ eIntU 5
+  , Named "c" $ eBinOpU Add (eVarU "a") (eVarU "b")
+  , Named "b" $ eIntU 3
+  ]
+  $ eVarU "c"
+
+sumUnorderedExp :: AstT
+sumUnorderedExp = Ast
+  [ Named "a" $ eIntT 5
+  , Named "c" $ eBinOpT TInt Add (eVarT TInt "a") (eVarT TInt "b")
+  , Named "b" $ eIntT 3
+  ]
+  $ eVarT TInt "c"
+
+factImp :: AstU
+factImp = Ast
   [ Named "fact" $ eLamU "n" $
     eIfU
       (Pred $ eBinOpU LessThan (eVarU "n") $ eIntU 1)
@@ -23,11 +71,12 @@ factorialImplicit = Ast
       (eBinOpU Mul
         (eVarU "n")
         (eAppU (eVarU "fact")
-          (eBinOpU Sub (eVarU "n") $ eIntU 1)))]
+          (eBinOpU Sub (eVarU "n") $ eIntU 1)))
+  ]
   (eAppU (eVarU "fact") (eIntU 5))
 
-factorialExplicit :: AstT
-factorialExplicit = Ast
+facExp :: AstT
+facExp = Ast
   [ Named "fact" $ eLamT (TLam TInt TInt) (Named "n" TInt) $
     eIfT TInt
       (Pred $ eBinOpT TBln LessThan (eVarT TInt "n") $ eIntT 1)
@@ -35,7 +84,8 @@ factorialExplicit = Ast
       (eBinOpT TInt Mul
         (eVarT TInt "n")
         (eAppT TInt (eVarT (TLam TInt TInt) "fact")
-          (eBinOpT TInt Sub (eVarT TInt "n") $ eIntT 1)))]
+          (eBinOpT TInt Sub (eVarT TInt "n") $ eIntT 1)))
+  ]
   (eAppT TInt (eVarT (TLam TInt TInt) "fact") (eIntT 5))
 
 
