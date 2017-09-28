@@ -17,10 +17,14 @@ library
   hs-source-dirs:      src
   exposed-modules:     Ast 
                      , AstBuilderU
-                     , ConstraintGen
+                     , Transforms
   other-modules:       Constraint
+                     , ConstraintGen
                      , Name 
+                     , SubAst
+                     , Substitution
                      , Type
+                     , Unify
                      , Util
   build-depends:       base >= 4.7 && < 5
                      , containers
