@@ -19,6 +19,9 @@ tests = testGroup "Tests"
   , testCase "unordered sum"
     $ typeCheckAst sumUnorderedImp @?= sumUnorderedExp
 
+  , testCase "inc"
+    $ typeCheckAst incImp @?= incExp
+
   , testCase "type-check fact"
     $ typeCheckAst factImp @?= facExp
 
@@ -61,6 +64,20 @@ sumUnorderedExp = Ast
   , Named "b" $ eIntT 3
   ]
   $ eVarT TInt "c"
+
+incImp :: AstU
+incImp = Ast
+  [ Named "inc" $ eLamU "i"
+    $ eBinOpU Add (eVarU "i") (eIntU 1)
+  ]
+  (eAppU (eVarU "inc") (eIntU 7))
+
+incExp :: AstT
+incExp = Ast
+  [ Named "inc" $ eLamT (TLam TInt TInt) (Named "i" TInt)
+    $ eBinOpT TInt Add (eVarT TInt "i") (eIntT 1)
+  ]
+  (eAppT TInt (eVarT TInt "inc") (eIntT 7))
 
 factImp :: AstU
 factImp = Ast
