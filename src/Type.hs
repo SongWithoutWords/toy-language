@@ -9,5 +9,5 @@ data Type
   deriving(Eq, Show)
 
 newtype TypeVar = TypeVar Word
-  deriving(Eq, Show)
+  deriving(Eq, Ord, Show)
 
