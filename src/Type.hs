@@ -4,10 +4,7 @@ data Type
   = TLam Type Type
   | TBln
   | TInt
-  | TVar TypeVar
+  | TVar Word
   | TError
   deriving(Eq, Show)
-
-newtype TypeVar = TypeVar Word
-  deriving(Eq, Ord, Show)
 

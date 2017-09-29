@@ -20,11 +20,14 @@ constrainAst ast =
 
 data ConstrainState = ConstrainState
   { localBindings :: [Named Type]
-  , nextTypeVar :: TypeVar
+  , nextTypeId :: Word
   }
 
 initialState :: ConstrainState
-initialState = ConstrainState [] $ TypeVar 0
+initialState = ConstrainState
+  { localBindings = []
+  , nextTypeId = 0
+  }
 
 type ConstrainM a = RWS AstT [Constraint] ConstrainState a
 
@@ -34,14 +37,11 @@ pushLocal nt = modify $ \s -> s{localBindings = nt : localBindings s}
 popLocal :: ConstrainM ()
 popLocal = modify $ \s -> s{localBindings = tail $ localBindings s}
 
-getNextTypeVar :: ConstrainM TypeVar
+getNextTypeVar :: ConstrainM Type
 getNextTypeVar = do
-  var@(TypeVar val) <- (gets nextTypeVar)
-  modify $ \s -> s{nextTypeVar = TypeVar (val + 1)}
-  pure var
-
-nextType :: ConstrainM Type
-nextType = getNextTypeVar >>= pure . TVar
+  val <- (gets nextTypeId)
+  modify $ \s -> s{nextTypeId = (val + 1)}
+  pure $ TVar val
 
 constrain :: Type -> Type -> ConstrainM ()
 constrain t1 t2 = tell [t1 := t2]
@@ -72,10 +72,10 @@ checkExpr (ExprU expression) = case expression of
 
 
   ELamU name expr -> do
-    tLam <- nextType
+    tLam <- getNextTypeVar
 
     -- param'@(Named tParam _) <- checkParam param
-    tParam <- nextType
+    tParam <- getNextTypeVar
 
     let param = Named name tParam
 
@@ -89,7 +89,7 @@ checkExpr (ExprU expression) = case expression of
 
 
   EApp e1 e2 -> do
-    tApp <- nextType
+    tApp <- getNextTypeVar
 
     e1'@(ExprT t1 _) <- checkExpr e1
     e2'@(ExprT t2 _) <- checkExpr e2
@@ -99,7 +99,7 @@ checkExpr (ExprU expression) = case expression of
     pure $ ExprT tApp $ EApp e1' e2'
 
   EIf (Pred e1) e2 e3 -> do
-    tIf <- nextType
+    tIf <- getNextTypeVar
 
     e1'@(ExprT t1 _) <- checkExpr e1
     e2'@(ExprT t2 _) <- checkExpr e2
@@ -148,7 +148,7 @@ checkExpr (ExprU expression) = case expression of
       e1'@(ExprT t1 _) <- checkExpr e1
       e2'@(ExprT t2 _) <- checkExpr e2
 
-      tRes <- nextType
+      tRes <- getNextTypeVar
       checkBinOp op t1 t2 tRes
 
       pure $ ExprT tRes $ EBinOp op e1' e2'

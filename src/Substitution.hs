@@ -4,7 +4,7 @@ import qualified Data.Map as M
 
 import Type
 
-type Substitutions = M.Map TypeVar Type
+type Substitutions = M.Map Word Type
 
 subType :: Substitutions -> Type -> Type
 subType s (TLam t1 t2) = TLam (subType s t1) (subType s t2)
