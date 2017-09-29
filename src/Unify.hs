@@ -15,7 +15,7 @@ unifyConstraints (c : cs) =
     M.union s1 s2
 
 unifyConstraint :: Constraint -> Substitutions
-unifyConstraint (Constraint t1 t2) = let
+unifyConstraint (t1 := t2) = let
   unify' :: Type -> Type -> Substitutions
   unify' a b
 
@@ -27,7 +27,7 @@ unifyConstraint (Constraint t1 t2) = let
 
     | TLam x1 x2 <- a
     , TLam y1 y2 <- b
-    = unifyConstraints [Constraint x1 y1, Constraint x2 y2]
+    = unifyConstraints [x1 := y1, x2 := y2]
 
     | otherwise = error $ "cannot unify " ++ show a ++ " " ++ show b
 

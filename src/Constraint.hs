@@ -6,9 +6,9 @@ module Constraint
 import Type
 
 data Constraint
-  = Constraint Type Type
+  = Type := Type
   deriving(Eq, Show)
 
 mapConstraint :: (Type -> Type) -> Constraint -> Constraint
-mapConstraint f (Constraint t1 t2) = Constraint (f t1) (f t2)
+mapConstraint f (t1 := t2) = (f t1) := (f t2)
 

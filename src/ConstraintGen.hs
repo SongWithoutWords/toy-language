@@ -44,7 +44,7 @@ nextType :: ConstrainM Type
 nextType = getNextTypeVar >>= pure . TVar
 
 constrain :: Type -> Type -> ConstrainM ()
-constrain t1 t2 = tell [Constraint t1 t2]
+constrain t1 t2 = tell [t1 := t2]
 
 checkAst :: AstU -> ConstrainM AstT
 checkAst (Ast exprs expr) = do
