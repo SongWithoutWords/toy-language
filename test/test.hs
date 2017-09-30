@@ -88,7 +88,7 @@ incExp = Ast
   [ Named "inc" $ eLamT (TLam TInt TInt) (Named "i" TInt)
     $ eBinOpT TInt Add (eVarT TInt "i") (eIntT 1)
   ]
-  (eAppT TInt (eVarT TInt "inc") (eIntT 7))
+  (eAppT TInt (eVarT (TLam TInt TInt) "inc") (eIntT 7))
 
 factImp :: AstU
 factImp = Ast
