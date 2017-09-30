@@ -1,5 +1,6 @@
 module Unify
   ( unifyConstraints
+  , module Constraint
   ) where
 
 import Data.Map as M
