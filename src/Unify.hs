@@ -14,7 +14,8 @@ unifyConstraints [] = M.empty
 unifyConstraints (c : cs) =
   let s2 = unifyConstraints cs in
   let s1 = unifyConstraint $ subConstraint s2 c in
-    M.union s1 s2
+  let s2' = M.map (subType s1) s2 in
+    M.union s1 s2'
 
 unifyConstraint :: Constraint -> Substitutions
 unifyConstraint (t1 := t2) = let
