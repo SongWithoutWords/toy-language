@@ -17,6 +17,7 @@ unifyTests = testGroup "Unification"
   , test05
   , test06
   , test07
+  , test08
   ]
 
 unifyTest :: String -> [Constraint] -> Substitutions -> TestTree
@@ -56,9 +57,24 @@ test06 = unifyTest "06 - lambda two sided" c s
     c = [TLam (TVar 0) TInt := TLam TBln (TVar 1)]
     s = M.fromList [(0, TBln), (1, TInt)]
 
-test07 = unifyTest "06 - typeVar := lambda" c s
+test07 = unifyTest "07 - typeVar := lambda" c s
   where
     c = [ TVar 0 := TLam (TVar 1) TInt
         , TVar 0 := TLam TBln (TVar 2) ]
     s = M.fromList [(0, TLam TBln TInt), (1, TBln), (2, TInt)]
+
+test08 = unifyTest "08 - inc constraints" c s
+  where
+    c = [ TInt := TVar 1
+        , TInt := TInt
+        , TInt := TVar 2
+        , TVar 0 := TLam (TVar 1) (TVar 2)
+        , TVar 0 := TLam TInt (TVar 3)]
+
+    s = M.fromList
+        [ (0, TLam TInt TInt)
+        , (1, TInt)
+        , (2, TInt)
+        , (3, TInt)
+        ]
 
