@@ -1,6 +1,8 @@
 import Test.Tasty
 import Test.Tasty.HUnit
 
+import Test.Unify
+
 import AstBuilderU
 import AstBuilderT
 import Transforms
@@ -10,7 +12,9 @@ main = defaultMain tests
 
 tests :: TestTree
 tests = testGroup "Tests"
-  [ testCase "var"
+  [ unifyTests
+
+  , testCase "var"
     $ typeCheckAst varImp @?= varExp
 
   , testCase "ordered sum"
@@ -64,6 +68,13 @@ sumUnorderedExp = Ast
   , Named "b" $ eIntT 3
   ]
   $ eVarT TInt "c"
+
+identityImp :: AstU
+identityImp = Ast
+  [ Named "id" $ eLamU "x"
+    $ eVarU "x"
+  ]
+  (eAppU (eVarU "id") (eIntU 7))
 
 incImp :: AstU
 incImp = Ast
