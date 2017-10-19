@@ -36,6 +36,7 @@ test-suite toy-language-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             test.hs
+  other-modules:       Test.Unify
   build-depends:       base
                      , containers
                      , tasty
