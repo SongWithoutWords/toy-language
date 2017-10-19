@@ -40,11 +40,11 @@ unifyConstraint (a := b)
   | otherwise = error $ "cannot unify " ++ show a ++ " with " ++ show b
 
 unifyWithOverload :: (Pair Type) -> [Pair Type] -> Substitutions
-unifyWithOverload pair@(x1 :# x2) overloads =
+unifyWithOverload pair overloads =
   let viableOverloads = filter (pairsUnifiable pair) overloads in
   case viableOverloads of
     [] -> error $ "cannot unify " ++ show pair ++ " with overloads " ++ show overloads
-    [y1 :# y2] -> unifyConstraints [x1 := y1, x2 := y2]
+    [y1 :# y2] -> let (x1 :# x2) = pair in unifyConstraints [x1 := y1, x2 := y2]
     _ -> error $ "cannot unify " ++ show pair ++ " with overlapping overloads " ++ show overloads
 
   where
@@ -65,12 +65,8 @@ unifyWithOverload pair@(x1 :# x2) overloads =
         = typesUnifiable x1 y1 && typesUnifiable x2 y2
 
       | otherwise = False
-  
-
-
 
 subConstraint :: Substitutions -> Constraint -> Constraint
 subConstraint = mapConstraint . subType
-
 
 
