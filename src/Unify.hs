@@ -28,8 +28,8 @@ unifyConstraint (t1 := t2) = let
 
     | TVar y <- b = M.singleton y a
 
-    | TFunc (FType x1 x2) <- a
-    , TFunc (FType y1 y2) <- b
+    | TFunc x1 x2 <- a
+    , TFunc y1 y2 <- b
     = unifyConstraints [x1 := y1, x2 := y2]
 
     | otherwise = error $ "cannot unify " ++ show a ++ " " ++ show b

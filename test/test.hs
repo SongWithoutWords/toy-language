@@ -85,10 +85,10 @@ incImp = Ast
 
 incExp :: AstT
 incExp = Ast
-  [ Named "inc" $ eLamT (TFunc $ FType TInt TInt) (Named "i" TInt)
+  [ Named "inc" $ eLamT (TFunc TInt TInt) (Named "i" TInt)
     $ eBinOpT TInt Add (eVarT TInt "i") (eIntT 1)
   ]
-  (eAppT TInt (eVarT (TFunc $ FType TInt TInt) "inc") (eIntT 7))
+  (eAppT TInt (eVarT (TFunc TInt TInt) "inc") (eIntT 7))
 
 factImp :: AstU
 factImp = Ast
@@ -105,15 +105,15 @@ factImp = Ast
 
 facExp :: AstT
 facExp = Ast
-  [ Named "fact" $ eLamT (TFunc $ FType TInt TInt) (Named "n" TInt) $
+  [ Named "fact" $ eLamT (TFunc TInt TInt) (Named "n" TInt) $
     eIfT TInt
       (Pred $ eBinOpT TBln LessThan (eVarT TInt "n") $ eIntT 1)
       (eIntT 1)
       (eBinOpT TInt Mul
         (eVarT TInt "n")
-        (eAppT TInt (eVarT (TFunc $ FType TInt TInt) "fact")
+        (eAppT TInt (eVarT (TFunc TInt TInt) "fact")
           (eBinOpT TInt Sub (eVarT TInt "n") $ eIntT 1)))
   ]
-  (eAppT TInt (eVarT (TFunc $ FType TInt TInt) "fact") (eIntT 5))
+  (eAppT TInt (eVarT (TFunc TInt TInt) "fact") (eIntT 5))
 
 

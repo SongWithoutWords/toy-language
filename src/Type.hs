@@ -1,13 +1,13 @@
 module Type where
 
+import Data.List.NonEmpty
+import Data.UniformPair
+
 data Type
-  = TFunc FType
+  = TFunc Type Type
   | TBln
   | TInt
   | TVar Word
   | TError
-  deriving(Eq, Show)
-
-data FType = FType Type Type
   deriving(Eq, Show)
 
