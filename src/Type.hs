@@ -1,4 +1,8 @@
-module Type where
+module Type
+  ( module Type
+  , NonEmpty(..)
+  , Pair(..)
+  ) where
 
 import Data.List.NonEmpty
 import Data.UniformPair
