@@ -99,4 +99,18 @@ test10 = unifyTest "10 - simple overload" c s
         , (1, TInt)
         ]
 
+test11 = unifyTest "11 - overload with implicit return types" c s
+  where
+    c = [ TVar 0 := TInt
+        , TVar 1 := TBln
 
+        , TFunc TBln (TVar 2) := TOver [TBln :# TVar 0, TInt :# TVar 1]
+        , TFunc TInt (TVar 3) := TOver [TBln :# TVar 0, TInt :# TVar 1]
+        ]
+
+    s = M.fromList
+        [ (0, TInt)
+        , (1, TBln)
+        , (2, TInt)
+        , (3, TBln)
+        ]
