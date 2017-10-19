@@ -18,23 +18,18 @@ unifyConstraints (c : cs) =
     M.union s1 s2'
 
 unifyConstraint :: Constraint -> Substitutions
-unifyConstraint (t1 := t2) = let
-  unify' :: Type -> Type -> Substitutions
-  unify' a b
+unifyConstraint (a := b)
+  | a == b = M.empty
 
-    | a == b = M.empty
+  | TVar x <- a = M.singleton x b
 
-    | TVar x <- a = M.singleton x b
+  | TVar y <- b = M.singleton y a
 
-    | TVar y <- b = M.singleton y a
+  | TFunc x1 x2 <- a
+  , TFunc y1 y2 <- b
+  = unifyConstraints [x1 := y1, x2 := y2]
 
-    | TFunc x1 x2 <- a
-    , TFunc y1 y2 <- b
-    = unifyConstraints [x1 := y1, x2 := y2]
-
-    | otherwise = error $ "cannot unify " ++ show a ++ " " ++ show b
-
-  in unify' t1 t2
+  | otherwise = error $ "cannot unify " ++ show a ++ " " ++ show b
 
 subConstraint :: Substitutions -> Constraint -> Constraint
 subConstraint = mapConstraint . subType
