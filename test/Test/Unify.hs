@@ -18,6 +18,7 @@ unifyTests = testGroup "Unification"
   , test06
   , test07
   , test08
+  , test09
   ]
 
 unifyTest :: String -> [Constraint] -> Substitutions -> TestTree
@@ -76,5 +77,18 @@ test08 = unifyTest "08 - inc constraints" c s
         , (1, TInt)
         , (2, TInt)
         , (3, TInt)
+        ]
+
+test09 = unifyTest "09 - simple overload" c s
+  where
+    c = [ TVar 0 := TOver ((TBln :# TBln) :| [TInt :# TInt])
+        , (TFunc  TBln (TVar 1)) := TVar 0
+        , (TFunc  TInt (TVar 2)) := TVar 0
+        ]
+
+    s = M.fromList
+        [ (0, TOver $ (TBln :# TBln) :| [TInt :# TInt])
+        , (1, TBln)
+        , (2, TInt)
         ]
 
