@@ -44,35 +44,35 @@ test03 = unifyTest "03 - multiple subs" c s
 
 test04 = unifyTest "04 - lambda" c s
   where
-    c = [TVar 0 := TLam (TVar 1) (TVar 2), TVar 1 := TVar 2, TVar 2 := TInt]
-    s = M.fromList [(0, TLam TInt TInt), (1, TInt), (2, TInt)]
+    c = [TVar 0 := (TFunc $ FType (TVar 1) (TVar 2)), TVar 1 := TVar 2, TVar 2 := TInt]
+    s = M.fromList [(0, TFunc $ FType TInt TInt), (1, TInt), (2, TInt)]
 
 test05 = unifyTest "05 - lambda equality one sided" c s
   where
-    c = [TLam (TVar 0) (TVar 1) := TLam TBln TInt]
+    c = [TFunc (FType (TVar 0) (TVar 1)) := TFunc (FType TBln TInt)]
     s = M.fromList [(0, TBln), (1, TInt)]
 
 test06 = unifyTest "06 - lambda two sided" c s
   where
-    c = [TLam (TVar 0) TInt := TLam TBln (TVar 1)]
+    c = [TFunc (FType (TVar 0) TInt) := TFunc (FType TBln (TVar 1))]
     s = M.fromList [(0, TBln), (1, TInt)]
 
 test07 = unifyTest "07 - typeVar := lambda" c s
   where
-    c = [ TVar 0 := TLam (TVar 1) TInt
-        , TVar 0 := TLam TBln (TVar 2) ]
-    s = M.fromList [(0, TLam TBln TInt), (1, TBln), (2, TInt)]
+    c = [ TVar 0 := TFunc (FType (TVar 1) TInt)
+        , TVar 0 := TFunc (FType TBln (TVar 2))]
+    s = M.fromList [(0, TFunc $ FType TBln TInt), (1, TBln), (2, TInt)]
 
 test08 = unifyTest "08 - inc constraints" c s
   where
     c = [ TInt := TVar 1
         , TInt := TInt
         , TInt := TVar 2
-        , TVar 0 := TLam (TVar 1) (TVar 2)
-        , TVar 0 := TLam TInt (TVar 3)]
+        , TVar 0 := TFunc (FType (TVar 1) (TVar 2))
+        , TVar 0 := TFunc (FType TInt (TVar 3))]
 
     s = M.fromList
-        [ (0, TLam TInt TInt)
+        [ (0, TFunc $ FType TInt TInt)
         , (1, TInt)
         , (2, TInt)
         , (3, TInt)

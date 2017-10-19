@@ -83,7 +83,7 @@ checkExpr (ExprU expression) = case expression of
     expr'@(ExprT tExpr _) <- checkExpr expr
     popLocal
 
-    constrain tLam $ TLam tParam tExpr
+    constrain tLam $ TFunc $ FType tParam tExpr
 
     pure $ ExprT tLam $ ELamT param expr'
 
@@ -94,7 +94,7 @@ checkExpr (ExprU expression) = case expression of
     e1'@(ExprT t1 _) <- checkExpr e1
     e2'@(ExprT t2 _) <- checkExpr e2
 
-    constrain t1 $ TLam t2 tApp
+    constrain t1 $ TFunc $ FType t2 tApp
 
     pure $ ExprT tApp $ EApp e1' e2'
 

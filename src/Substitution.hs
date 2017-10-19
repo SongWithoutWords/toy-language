@@ -7,7 +7,7 @@ import Type
 type Substitutions = M.Map Word Type
 
 subType :: Substitutions -> Type -> Type
-subType s (TLam t1 t2) = TLam (subType s t1) (subType s t2)
+subType s (TFunc (FType t1 t2)) = TFunc $ FType (subType s t1) (subType s t2)
 subType _ TBln = TBln
 subType _ TInt = TInt
 subType _ TError = TError
