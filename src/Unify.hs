@@ -4,7 +4,7 @@ module Unify
   , module Substitution
   ) where
 
-import Data.Map as M
+import qualified Data.Map as M
 
 import Constraint
 import Substitution
@@ -27,11 +27,50 @@ unifyConstraint (a := b)
 
   | TFunc x1 x2 <- a
   , TFunc y1 y2 <- b
-  = unifyConstraints [x1 := y1, x2 := y2]
+    = unifyConstraints [x1 := y1, x2 := y2]
 
-  | otherwise = error $ "cannot unify " ++ show a ++ " " ++ show b
+  | TFunc x1 x2 <- a
+  , TOver overloads <- b
+    = unifyWithOverload (x1 :# x2) overloads
+
+  | TOver overloads <- a
+  , TFunc x1 x2 <- b
+    = unifyWithOverload (x1 :# x2) overloads
+
+  | otherwise = error $ "cannot unify " ++ show a ++ " with " ++ show b
+
+unifyWithOverload :: (Pair Type) -> [Pair Type] -> Substitutions
+unifyWithOverload pair@(x1 :# x2) overloads =
+  let viableOverloads = filter (pairsUnifiable pair) overloads in
+  case viableOverloads of
+    [] -> error $ "cannot unify " ++ show pair ++ " with overloads " ++ show overloads
+    [y1 :# y2] -> unifyConstraints [x1 := y1, x2 := y2]
+    _ -> error $ "cannot unify " ++ show pair ++ " with overlapping overloads " ++ show overloads
+
+  where
+    pairsUnifiable :: (Pair Type) -> (Pair Type) -> Bool
+    pairsUnifiable (x1 :# x2) (y1 :# y2) =
+      typesUnifiable x1 y1 && typesUnifiable x2 y2
+
+    typesUnifiable :: Type -> Type -> Bool
+    typesUnifiable a b
+      | a == b = True
+
+      | TVar _ <- a = True
+
+      | TVar _ <- b = True
+
+      | TFunc x1 x2 <- a
+      , TFunc y1 y2 <- b
+        = typesUnifiable x1 y1 && typesUnifiable x2 y2
+
+      | otherwise = False
+  
+
+
 
 subConstraint :: Substitutions -> Constraint -> Constraint
 subConstraint = mapConstraint . subType
+
 
 

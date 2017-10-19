@@ -8,6 +8,7 @@ type Substitutions = M.Map Word Type
 
 subType :: Substitutions -> Type -> Type
 subType s (TFunc t1 t2) = TFunc (subType s t1) (subType s t2)
+subType s (TOver overloads) = TOver $ fmap (fmap $ subType s) overloads
 subType _ TBln = TBln
 subType _ TInt = TInt
 subType _ TError = TError

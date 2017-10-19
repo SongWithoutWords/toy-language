@@ -19,6 +19,8 @@ unifyTests = testGroup "Unification"
   , test07
   , test08
   , test09
+  , test10
+  , test11
   ]
 
 unifyTest :: String -> [Constraint] -> Substitutions -> TestTree
@@ -45,7 +47,7 @@ test03 = unifyTest "03 - multiple subs" c s
 
 test04 = unifyTest "04 - lambda" c s
   where
-    c = [TVar 0 := (TFunc (TVar 1) (TVar 2)), TVar 1 := TVar 2, TVar 2 := TInt]
+    c = [TVar 0 := TFunc (TVar 1) (TVar 2), TVar 1 := TVar 2, TVar 2 := TInt]
     s = M.fromList [(0, TFunc TInt TInt), (1, TInt), (2, TInt)]
 
 test05 = unifyTest "05 - lambda equality one sided" c s
@@ -70,7 +72,8 @@ test08 = unifyTest "08 - inc constraints" c s
         , TInt := TInt
         , TInt := TVar 2
         , TVar 0 := TFunc (TVar 1) (TVar 2)
-        , TVar 0 := TFunc TInt (TVar 3)]
+        , TVar 0 := TFunc TInt (TVar 3)
+        ]
 
     s = M.fromList
         [ (0, TFunc  TInt TInt)
@@ -79,16 +82,21 @@ test08 = unifyTest "08 - inc constraints" c s
         , (3, TInt)
         ]
 
-test09 = unifyTest "09 - simple overload" c s
+test09 = unifyTest "09 - singleton overload" c s
   where
-    c = [ TVar 0 := TOver ((TBln :# TBln) :| [TInt :# TInt])
-        , (TFunc  TBln (TVar 1)) := TVar 0
-        , (TFunc  TInt (TVar 2)) := TVar 0
+    c = [ TFunc TBln (TVar 0) := TOver [TBln :# TBln] ]
+
+    s = M.fromList [(0, TBln)]
+
+test10 = unifyTest "10 - simple overload" c s
+  where
+    c = [ TFunc TBln (TVar 0) := TOver [TBln :# TBln, TInt :# TInt]
+        , TFunc TInt (TVar 1) := TOver [TBln :# TBln, TInt :# TInt]
         ]
 
     s = M.fromList
-        [ (0, TOver $ (TBln :# TBln) :| [TInt :# TInt])
-        , (1, TBln)
-        , (2, TInt)
+        [ (0, TBln)
+        , (1, TInt)
         ]
+
 
