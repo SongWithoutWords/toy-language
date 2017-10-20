@@ -21,6 +21,8 @@ unifyTests = testGroup "Unification"
   , test09
   , test10
   , test11
+  , test12
+  , test13
   ]
 
 unifyTest :: String -> [Constraint] -> Substitutions -> TestTree
@@ -114,3 +116,35 @@ test11 = unifyTest "11 - overload with implicit return types" c s
         , (2, TInt)
         , (3, TBln)
         ]
+
+test12 = unifyTest "12 - overload variable args, functions first" c s
+  where
+    c = [ TFunc (TVar 0) (TVar 1) := TOver [TBln :# TBln, TInt :# TInt]
+        , TFunc (TVar 2) (TVar 3) := TOver [TBln :# TBln, TInt :# TInt]
+        , TVar 0 := TBln
+        , TVar 2 := TInt
+        ]
+
+    s = M.fromList
+        [ (0, TBln)
+        , (1, TBln)
+        , (2, TInt)
+        , (3, TInt)
+        ]
+
+test13 = unifyTest "13 - overload variable args, args first" c s
+  where
+    c =
+      [ TVar 0 := TBln
+      , TVar 2 := TInt
+      , TFunc (TVar 0) (TVar 1) := TOver [TBln :# TBln, TInt :# TInt]
+      , TFunc (TVar 2) (TVar 3) := TOver [TBln :# TBln, TInt :# TInt]
+      ]
+
+    s = M.fromList
+      [ (0, TBln)
+      , (1, TBln)
+      , (2, TInt)
+      , (3, TInt)
+      ]
+
