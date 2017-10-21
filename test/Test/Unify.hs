@@ -23,6 +23,7 @@ unifyTests = testGroup "Unification"
   , test11
   , test12
   , test13
+  , test14
   ]
 
 unifyTest :: String -> [Constraint] -> Substitutions -> TestTree
@@ -146,5 +147,15 @@ test13 = unifyTest "13 - overload variable args, args first" c s
       , (1, TBln)
       , (2, TInt)
       , (3, TInt)
+      ]
+
+test14 = unifyTest "14 - pathological - T0->TBln := TBln->TBln | TInt->TBln" c s
+  where
+    c =
+      [ TFunc (TVar 0) TBln := TOver [TBln :# TBln, TInt :# TBln]
+      ]
+
+    s = M.fromList
+      [ (0, TFunc TInt (TVar 0))
       ]
 
