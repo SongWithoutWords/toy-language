@@ -4,30 +4,43 @@ module Unify
   , module Substitution
   ) where
 
+import Control.Monad.Writer
 import qualified Data.Map as M
 
 import Constraint
 import Substitution
 
+type UnifyM = Writer [Constraint] -- a writer of unsolved constraints
+
+deferConstraint :: Constraint -> UnifyM ()
+deferConstraint c = tell [c]
+
 unifyConstraints :: [Constraint] -> Substitutions
 unifyConstraints [] = M.empty
-unifyConstraints (c : cs) =
-  let s2 = unifyConstraints cs in
-  let s1 = unifyConstraint $ subConstraint s2 c in
-  let s2' = M.map (subType s1) s2 in
-    M.union s1 s2'
+unifyConstraints cs =
+  let (subs, deferredConstraints) = runWriter $ unifyConstraints' cs in
+  let deferredConstraints' = map (subConstraint subs) deferredConstraints in
+  M.union subs $ unifyConstraints deferredConstraints'
 
-unifyConstraint :: Constraint -> Substitutions
+unifyConstraints' :: [Constraint] -> UnifyM Substitutions
+unifyConstraints' [] = pure M.empty
+unifyConstraints' (c : cs) = do
+  s2 <- unifyConstraints' cs
+  s1 <- unifyConstraint $ subConstraint s2 c
+  let s2' = M.map (subType s1) s2
+  pure $ M.union s1 s2'
+
+unifyConstraint :: Constraint -> UnifyM Substitutions
 unifyConstraint (a := b)
-  | a == b = M.empty
+  | a == b = pure M.empty
 
-  | TVar x <- a = M.singleton x b
+  | TVar x <- a = pure $ M.singleton x b
 
-  | TVar y <- b = M.singleton y a
+  | TVar y <- b = pure $ M.singleton y a
 
   | TFunc x1 x2 <- a
   , TFunc y1 y2 <- b
-    = unifyConstraints [x1 := y1, x2 := y2]
+    = unifyConstraints' [x1 := y1, x2 := y2]
 
   | TFunc x1 x2 <- a
   , TOver overloads <- b
@@ -39,34 +52,34 @@ unifyConstraint (a := b)
 
   | otherwise = error $ "cannot unify " ++ show a ++ " with " ++ show b
 
-unifyWithOverload :: (Pair Type) -> [Pair Type] -> Substitutions
-unifyWithOverload pair overloads =
-  let viableOverloads = filter (pairsUnifiable pair) overloads in
+unifyWithOverload :: (Pair Type) -> [Pair Type] -> UnifyM Substitutions
+unifyWithOverload pair@(x1 :# x2) overloads =
+  let viableOverloads = filter (possibleToUnifyPairs pair) overloads in
   case viableOverloads of
     [] -> error $ "cannot unify " ++ show pair ++ " with overloads " ++ show overloads
-    [y1 :# y2] -> let (x1 :# x2) = pair in unifyConstraints [x1 := y1, x2 := y2]
-    _ -> error $ "cannot unify " ++ show pair ++ " with overlapping overloads " ++ show overloads
+    [y1 :# y2] -> unifyConstraints' [x1 := y1, x2 := y2]
+    _ -> case x1 of
+      TVar _ -> (deferConstraint $ TFunc x1 x2 := TOver overloads) >> pure M.empty
+      _ -> error $ "cannot unify " ++ show pair ++ " with overlapping overloads " ++ show overloads
 
-  where
-    pairsUnifiable :: (Pair Type) -> (Pair Type) -> Bool
-    pairsUnifiable (x1 :# x2) (y1 :# y2) =
-      typesUnifiable x1 y1 && typesUnifiable x2 y2
+possibleToUnifyPairs :: (Pair Type) -> (Pair Type) -> Bool
+possibleToUnifyPairs (x1 :# x2) (y1 :# y2) =
+  possibleToUnifyType x1 y1 && possibleToUnifyType x2 y2
 
-    typesUnifiable :: Type -> Type -> Bool
-    typesUnifiable a b
-      | a == b = True
+possibleToUnifyType :: Type -> Type -> Bool
+possibleToUnifyType a b
+  | a == b = True
 
-      | TVar _ <- a = True
+  | TVar _ <- a = True -- it is possible
 
-      | TVar _ <- b = True
+  | TVar _ <- b = True -- it is possible
 
-      | TFunc x1 x2 <- a
-      , TFunc y1 y2 <- b
-        = typesUnifiable x1 y1 && typesUnifiable x2 y2
+  | TFunc x1 x2 <- a
+  , TFunc y1 y2 <- b
+    = possibleToUnifyType x1 y1 && possibleToUnifyType x2 y2
 
-      | otherwise = False
+  | otherwise = False
 
 subConstraint :: Substitutions -> Constraint -> Constraint
 subConstraint = mapConstraint . subType
-
 
