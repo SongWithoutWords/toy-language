@@ -17,10 +17,12 @@ deferConstraint c = tell [c]
 
 unifyConstraints :: [Constraint] -> Substitutions
 unifyConstraints [] = M.empty
-unifyConstraints cs =
-  let (subs, deferredConstraints) = runWriter $ unifyConstraints' cs in
+unifyConstraints constraints =
+  let (subs, deferredConstraints) = runWriter $ unifyConstraints' constraints in
   let deferredConstraints' = map (subConstraint subs) deferredConstraints in
-  M.union subs $ unifyConstraints deferredConstraints'
+  if deferredConstraints' == constraints
+  then error $ "Failed to unify constraints" ++ show constraints
+  else M.union subs $ unifyConstraints deferredConstraints'
 
 unifyConstraints' :: [Constraint] -> UnifyM Substitutions
 unifyConstraints' [] = pure M.empty
