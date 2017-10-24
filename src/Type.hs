@@ -14,5 +14,5 @@ data Type
   | TInt
   | TVar Word
   | TError
-  deriving(Eq, Show)
+  deriving(Eq, Ord, Show)
 
