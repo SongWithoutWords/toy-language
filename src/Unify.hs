@@ -6,6 +6,7 @@ module Unify
 
 import Control.Monad.Writer
 import qualified Data.Map as M
+import qualified Data.Set as S
 
 import Constraint
 import Substitution
@@ -15,12 +16,15 @@ type UnifyM = Writer [Constraint] -- a writer of unsolved constraints
 deferConstraint :: Constraint -> UnifyM ()
 deferConstraint c = tell [c]
 
+unorderedEq :: (Eq a, Ord a) => [a] -> [a] -> Bool
+unorderedEq xs ys = S.fromList xs == S.fromList ys
+
 unifyConstraints :: [Constraint] -> Substitutions
 unifyConstraints [] = M.empty
 unifyConstraints constraints =
   let (subs, deferredConstraints) = runWriter $ unifyConstraints' constraints in
   let deferredConstraints' = map (subConstraint subs) deferredConstraints in
-  if deferredConstraints' == constraints
+  if deferredConstraints' `unorderedEq` constraints
   then error $ "Failed to unify constraints" ++ show constraints
   else M.union subs $ unifyConstraints deferredConstraints'
 
